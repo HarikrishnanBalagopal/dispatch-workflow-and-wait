@@ -5871,6 +5871,7 @@ function main() {
                     resp.data.status === "completed") {
                     return core.info("Workflow succeeded");
                 }
+                core.info(`DEBUG: ${JSON.stringify(resp)}`);
                 return core.setFailed(`Workflow failed. conclusion: ${resp.data.conclusion} status: ${resp.data.status}`);
             }
         }

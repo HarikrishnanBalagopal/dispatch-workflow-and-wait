@@ -30,6 +30,6 @@ jobs:
         with:
           token: ${{ secrets.PA_TOKEN }}
           workflow: new-test-workflow.yml
-          branch: main
+          branch: foobar
           inputs: '{ "should_succeed" : "true" }'
           repo: "yohoo"

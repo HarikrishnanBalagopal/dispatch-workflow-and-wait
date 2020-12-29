@@ -29,7 +29,7 @@ jobs:
       - uses: ./
         with:
           token: ${{ secrets.PA_TOKEN }}
-          workflow: test-workflow.yml
+          workflow: new-test-workflow.yml
           branch: test-branch
           inputs: '{ "should_succeed" : "true" }'
           repo: "yohoo"

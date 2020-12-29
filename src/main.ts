@@ -1,16 +1,87 @@
 import * as core from "@actions/core";
-import { wait } from "./wait";
+import * as github from "@actions/github";
+
+function wait(seconds: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(), seconds * 1000);
+  });
+}
+
+async function main() {
+  const token = core.getInput("token", { required: true });
+  const workflow = core.getInput("workflow", { required: true });
+  const branch = core.getInput("branch", { required: true });
+  const inputs = core.getInput("inputs") || "{}";
+  const owner = core.getInput("owner") || github.context.repo.owner;
+  const repo = core.getInput("repo") || github.context.repo.repo;
+  const time_between_polls_str = core.getInput("time_between_polls") || "3";
+  const start_timeout_str = core.getInput("start_timeout") || "120";
+  const finish_timeout_str = core.getInput("finish_timeout") || "600";
+
+  const time_between_polls = parseInt(time_between_polls_str);
+  const start_timeout = parseInt(start_timeout_str);
+  const finish_timeout = parseInt(finish_timeout_str);
+
+  const octokit = github.getOctokit(token);
+  const resp = await octokit.actions.createWorkflowDispatch({
+    owner,
+    repo,
+    workflow_id: workflow,
+    ref: branch,
+    inputs: JSON.parse(inputs),
+  });
+  core.debug(`workflow dispatched. status: ${resp.status}`);
+
+  let run_id = -1;
+  for (let t = 0; t < start_timeout; t += time_between_polls) {
+    await wait(time_between_polls);
+    const resp = await octokit.actions.listWorkflowRuns({
+      owner,
+      repo,
+      workflow_id: workflow,
+      branch,
+      event: "workflow_dispatch",
+    });
+    if (
+      resp.data &&
+      resp.data.workflow_runs &&
+      resp.data.workflow_runs.length > 0
+    ) {
+      run_id = resp.data.workflow_runs[0].id;
+      core.info(`Found the workflow run. status:${resp} id:${run_id}`);
+      break;
+    }
+  }
+  if (run_id === -1) {
+    return core.setFailed(
+      `Timeout. The workflow did not start within ${start_timeout} seconds.`
+    );
+  }
+
+  for (let t = 0; t < finish_timeout; t += time_between_polls) {
+    await wait(time_between_polls);
+    const resp = await octokit.actions.getWorkflowRun({ owner, repo, run_id });
+    core.info(`still waiting. status: ${resp.data.status}`);
+    if (resp.data.conclusion !== null) {
+      if (
+        resp.data.conclusion === "success" &&
+        resp.data.status === "completed"
+      ) {
+        return core.info("Workflow succeeded");
+      }
+      return core.setFailed(
+        `Workflow failed. conclusion: ${resp.data.conclusion} status: ${resp.data.status}`
+      );
+    }
+  }
+  return core.setFailed(
+    `Timeout. Workflow still in progress after ${finish_timeout} seconds.`
+  );
+}
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput("milliseconds");
-    core.debug(`Waiting ${ms} milliseconds ...`); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-
-    core.debug(new Date().toTimeString());
-    await wait(parseInt(ms, 10));
-    core.debug(new Date().toTimeString());
-
-    core.setOutput("time", new Date().toTimeString());
+    await main();
   } catch (error) {
     core.setFailed(error.message);
   }

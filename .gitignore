@@ -105,3 +105,6 @@ lib/**/*
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+# VS Code
+.vscode/

@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.PA_TOKEN }}
           workflow: target.yml
           branch: main
           inputs: '{ "should_succeed" : "true" }'

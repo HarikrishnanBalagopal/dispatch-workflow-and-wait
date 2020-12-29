@@ -30,7 +30,7 @@ async function main() {
     ref: branch,
     inputs: JSON.parse(inputs),
   });
-  core.debug(`workflow dispatched. status: ${resp.status}`);
+  core.debug(`workflow dispatched. status: ${JSON.stringify(resp.status)}`);
 
   let run_id = -1;
   for (let t = 0; t < start_timeout; t += time_between_polls) {

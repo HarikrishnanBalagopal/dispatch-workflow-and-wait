@@ -48,7 +48,11 @@ async function main() {
       resp.data.workflow_runs.length > 0
     ) {
       run_id = resp.data.workflow_runs[0].id;
-      core.info(`Found the workflow run. status:${JSON.stringify(resp.status)} id:${run_id}`);
+      core.info(
+        `Found the workflow run. status:${JSON.stringify(
+          resp.status
+        )} id:${run_id}`
+      );
       break;
     }
   }

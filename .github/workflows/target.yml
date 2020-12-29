@@ -1,0 +1,33 @@
+name: Target
+
+on:
+  workflow_dispatch:
+    inputs:
+      should_succeed:
+        required: false
+        description: |
+          should_succeed: if this is false the workflow will fail
+
+jobs:
+  target:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            function wait(seconds) {
+              return new Promise(resolve => {
+                setTimeout(() => resolve(), seconds * 1000);
+              });
+            }
+
+            core.info('Starting......');
+            for(let i = 0; i < 3; i++) {
+              await wait(1);
+              core.info(i);
+            }
+            if(${{ github.event.inputs.should_succeed }} === 'true') {
+              return core.info('Success!!');
+            }
+            return core.setFailed('Failed!!');

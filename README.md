@@ -3,10 +3,20 @@
 This action can dispatch a workflow in the same repo or a different repo and wait for it to finish running.
 
 ## Usage
-
+Run workflow in same repo with no inputs and default timeouts:
 ```
 steps:
-  - uses: HarikrishnanBalagopal/dispatch-workflow-and-wait
+  - uses: HarikrishnanBalagopal/dispatch-workflow-and-wait@v1
+    with:
+      token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      workflow: build.yml
+      branch: main
+```
+
+Run workflow in different repo with some inputs and custom timeouts:
+```
+steps:
+  - uses: HarikrishnanBalagopal/dispatch-workflow-and-wait@v1
     with:
       token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       workflow: build.yml

@@ -5825,14 +5825,19 @@ function main() {
         const start_timeout = parseInt(start_timeout_str);
         const finish_timeout = parseInt(finish_timeout_str);
         const octokit = github.getOctokit(token);
-        const resp = yield octokit.actions.createWorkflowDispatch({
-            owner,
-            repo,
-            workflow_id: workflow,
-            ref: branch,
-            inputs: JSON.parse(inputs),
-        });
-        core.debug(`workflow dispatched. status: ${resp.status}`);
+        try {
+            const resp = yield octokit.actions.createWorkflowDispatch({
+                owner,
+                repo,
+                workflow_id: workflow,
+                ref: branch,
+                inputs: JSON.parse(inputs),
+            });
+            core.debug(`workflow dispatched. status: ${resp.status}`);
+        }
+        catch (err) {
+            return core.setFailed(`Failed to run the workflow ${workflow} in ${owner}/${repo} on branch ${branch} . Error: ${err}`);
+        }
         let run_id = -1;
         for (let t = 0; t < start_timeout; t += time_between_polls) {
             yield wait(time_between_polls);

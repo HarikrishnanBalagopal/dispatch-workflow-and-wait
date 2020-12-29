@@ -30,7 +30,7 @@ async function main() {
     ref: branch,
     inputs: JSON.parse(inputs),
   });
-  core.debug(`workflow dispatched. status: ${JSON.stringify(resp.status)}`);
+  core.debug(`workflow dispatched. status: ${resp.status}`);
 
   let run_id = -1;
   for (let t = 0; t < start_timeout; t += time_between_polls) {
@@ -48,7 +48,7 @@ async function main() {
       resp.data.workflow_runs.length > 0
     ) {
       run_id = resp.data.workflow_runs[0].id;
-      core.info(`Found the workflow run. status:${resp} id:${run_id}`);
+      core.info(`Found the workflow run. status:${resp.status} id:${run_id}`);
       break;
     }
   }

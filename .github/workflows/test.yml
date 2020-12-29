@@ -1,5 +1,5 @@
 name: "build-test"
-on: # rebuild any PRs and main branch changes
+on:
   pull_request:
   push:
     branches:
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: yarn
       - run: yarn run all
-  test: # make sure the action works on a clean machine without building
+  test_on_same_repo:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,3 +23,20 @@ jobs:
           workflow: target.yml
           branch: main
           inputs: '{ "should_succeed" : "true" }'
+  test_on_different_repo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          token: ${{ secrets.PA_TOKEN }}
+          workflow: target.yml
+          branch: main
+          inputs: '{ "should_succeed" : "true" }'
+      - uses: ./
+        with:
+          token: ${{ secrets.PA_TOKEN }}
+          workflow: test-workflow.yml
+          branch: test-branch
+          inputs: '{ "should_succeed" : "true" }'
+          repo: "yohoo"

@@ -42,17 +42,9 @@ async function main() {
       branch,
       event: "workflow_dispatch",
     });
-    if (
-      resp.data &&
-      resp.data.workflow_runs &&
-      resp.data.workflow_runs.length > 0
-    ) {
+    if (resp.data.workflow_runs.length > 0) {
       run_id = resp.data.workflow_runs[0].id;
-      core.info(
-        `Found the workflow run. status:${JSON.stringify(
-          resp.status
-        )} id:${run_id}`
-      );
+      core.info(`Found the workflow run. id: ${run_id}`);
       break;
     }
   }
@@ -65,7 +57,7 @@ async function main() {
   for (let t = 0; t < finish_timeout; t += time_between_polls) {
     await wait(time_between_polls);
     const resp = await octokit.actions.getWorkflowRun({ owner, repo, run_id });
-    core.info(`still waiting. status: ${resp.data.status}`);
+    core.info(`still waiting... status: ${resp.data.status}`);
     if (resp.data.conclusion !== null) {
       if (
         resp.data.conclusion === "success" &&

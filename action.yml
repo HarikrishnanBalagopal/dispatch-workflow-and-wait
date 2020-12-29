@@ -1,11 +1,43 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "Your name here"
+description: "Provide a description here"
+author: "Your name or organization here"
 inputs:
-  milliseconds: # change this
+  token:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: |
+      a personal access token with write access to the repo
+  workflow:
+    required: true
+    description: |
+      name of the workflow file. Ex: 'build.yml'
+  branch:
+    required: true
+    description: |
+      name of the branch to run the workflow on
+  inputs:
+    required: false
+    description: |
+      inputs to used by the workflow. default is {}
+  owner:
+    required: false
+    description: |
+      name of the repo owner. default is the current repo owner
+  repo:
+    required: false
+    description: |
+      name of the repo. default is the current repo
+  time_between_polls:
+    required: false
+    description: |
+      how long to wait between workflow status checks (in seconds). default is 3 seconds
+  start_timeout:
+    required: false
+    description: |
+      how long to wait for the workflow to start (in seconds). default if 2 minutes
+  finish_timeout:
+    required: false
+    description: |
+      how long to wait for the workflow to finish running (in seconds). default is 10 minutes
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"

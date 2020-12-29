@@ -27,7 +27,7 @@ jobs:
               await wait(1);
               core.info(i);
             }
-            if(${{ github.event.inputs.should_succeed }} === 'true') {
+            if('${{ github.event.inputs.should_succeed }}' === 'true') {
               return core.info('Success!!');
             }
             return core.setFailed('Failed!!');

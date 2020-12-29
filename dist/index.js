@@ -5840,18 +5840,23 @@ function main() {
         }
         let run_id = -1;
         for (let t = 0; t < start_timeout; t += time_between_polls) {
-            yield wait(time_between_polls);
-            const resp = yield octokit.actions.listWorkflowRuns({
-                owner,
-                repo,
-                workflow_id: workflow,
-                branch,
-                event: "workflow_dispatch",
-            });
-            if (resp.data.workflow_runs.length > 0) {
-                run_id = resp.data.workflow_runs[0].id;
-                core.info(`Found the workflow run. id: ${run_id}`);
-                break;
+            try {
+                yield wait(time_between_polls);
+                const resp = yield octokit.actions.listWorkflowRuns({
+                    owner,
+                    repo,
+                    workflow_id: workflow,
+                    branch,
+                    event: "workflow_dispatch",
+                });
+                if (resp.data.workflow_runs.length > 0) {
+                    run_id = resp.data.workflow_runs[0].id;
+                    core.info(`Found the workflow run. id: ${run_id}`);
+                    break;
+                }
+            }
+            catch (err) {
+                return core.setFailed(`Error occurred while trying to find the workflow we just started. Error: ${err}`);
             }
         }
         if (run_id === -1) {
